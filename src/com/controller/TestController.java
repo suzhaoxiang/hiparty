@@ -1,6 +1,7 @@
 package com.controller;
 
 import com.beans.Chater;
+import com.beans.Json;
 import com.beans.Lab;
 import com.beans.RoomUser;
 import com.utils.HibernateUtil;
@@ -66,6 +67,12 @@ public class TestController {
         Wmap.put("wordList",sendList);
         chater2.setObject(Wmap);
         return chater2;
+    }
+
+    @RequestMapping("/add")
+    @ResponseBody
+    public Json testAdd(){
+        return null;
     }
 
 }
