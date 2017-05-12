@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <bean id="create" class="com.nhandler.HandleCreate"/>
+    <bean id="in" class="com.nhandler.HandleIn"/>
+    <context name="com.nhandler"/>
+</beans>
+
