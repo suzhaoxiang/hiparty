@@ -92,7 +92,7 @@ public class GameController {
     }
     @RequestMapping("/getPlayerList")
     @ResponseBody
-    public void getPlayerList(Chater chater,String[] ids){
+    public Chater getPlayerList(Chater chater,String[] ids){
         Chater chater2=new Chater();
         Room room=LabUtils.FindRoom(chater.getRoomId());
         if(chater.getRoomId()==null||chater.getUserId()==null){
@@ -100,20 +100,29 @@ public class GameController {
             room.sendSingle(chater2,LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()).getSession());
         }
         List<RoomUser> playerlist = room.getUserlist();
+        List<RoomUserDTO> players = new ArrayList<>();
+        if(ids != null){
         for (int i = 0; i < ids.length; i++) {
             playerlist.remove(LabUtils.FindRoomUser(chater.getRoomId(),ids[i]));
+        }}
+        for (RoomUser roomUser:playerlist){
+            RoomUserDTO roomUserDTO = new RoomUserDTO();
+            roomUserDTO.setNickname(roomUser.getNickname());
+            roomUserDTO.setSeat(roomUser.getSeat());
+            roomUserDTO.setUserId(roomUser.getUserId());
+            players.add(roomUserDTO);
         }
-        String s=new Gson().toJson(playerlist);
+        String s=new Gson().toJson(players);
         chater2.setRoomId(chater.getRoomId());
         chater2.setUserId(chater.getUserId());
         chater2.setMessage("SUCCEED");
         chater2.setObject(s);
         chater2.setOrder("getPlayerList");
-        room.sendSingle(chater2,LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()).getSession());
+        return chater2;
     }
     @RequestMapping("/werewolf")
     @ResponseBody
-    public void BeginWerewolf(Chater chater,String[] ids) {
+    public Chater BeginWerewolf(Chater chater,String[] ids) {
         String obj =  chater.getObject().toString();
         Werewolf werewolf=new Gson().fromJson(obj,Werewolf.class);
         Room room=LabUtils.FindRoom(chater.getRoomId());
@@ -133,47 +142,47 @@ public class GameController {
         playerlist.remove(LabUtils.FindRoomUser(chater.getRoomId(),werewolf.getGod()));
         room.sendSingle(chater2, LabUtils.FindRoomUser(chater.getRoomId(),werewolf.getGod()).getSession());
         //预言家
-        if (werewolf.isSeerIs()) {
+        if (werewolf.getSeerIs()) {
             chater2.setMessage("预言家");
             playerlist=createPlayer(chater2,playerlist);
         }
         //女巫
-        if (werewolf.isWitchIs()) {
+        if (werewolf.getWitchIs()) {
             chater2.setMessage("女巫");
             playerlist=createPlayer(chater2,playerlist);
         }
         //猎人
-        if (werewolf.isHunterIs()) {
+        if (werewolf.getHunterIs()) {
             chater2.setMessage("猎人");
             playerlist=createPlayer(chater2,playerlist);
         }
         //盗贼
-        if (werewolf.isThiefIs()) {
+        if (werewolf.getThiefIs()) {
             chater2.setMessage("盗贼");
             playerlist=createPlayer(chater2,playerlist);
         }
         //白痴
-        if (werewolf.isIdiotIs()) {
+        if (werewolf.getIdiotIs()) {
             chater2.setMessage("白痴");
             playerlist=createPlayer(chater2,playerlist);
         }
         //丘比特
-        if (werewolf.isCupidIs()) {
+        if (werewolf.getCupidIs()) {
             chater2.setMessage("丘比特");
             playerlist=createPlayer(chater2,playerlist);
         }
         //守卫
-        if (werewolf.isGuardIs()) {
+        if (werewolf.getGuardIs()) {
             chater2.setMessage("守卫");
             playerlist=createPlayer(chater2,playerlist);
         }
         //小女孩
-        if (werewolf.isGirlIs()) {
+        if (werewolf.getThiefIs()) {
             chater2.setMessage("小女孩");
             playerlist=createPlayer(chater2,playerlist);
         }
         //长老
-        if (werewolf.isPresbyterIs()) {
+        if (werewolf.getPresbyterIs()) {
             chater2.setMessage("长老");
             playerlist=createPlayer(chater2,playerlist);
         }
@@ -187,6 +196,10 @@ public class GameController {
             chater2.setMessage("村民");
             playerlist=createPlayer(chater2,playerlist);
         }
+        Chater chater1 = new Chater();
+        chater1.setMessage("SUCCEED");
+        chater1.setOrder("werewolf");
+        return chater1;
     }
 
     private List<RoomUser> createPlayer(Chater chater,List<RoomUser> playerlist){

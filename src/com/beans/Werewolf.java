@@ -16,47 +16,52 @@ public class Werewolf {
     /**
      * 预言家是否存在
      */
-    private boolean seerIs;
+    private Boolean seerIs;
 
     /**
      * 女巫是否存在
      */
-    private boolean witchIs;
+    private Boolean witchIs;
 
     /**
      * 猎人是否存在
      */
-    private boolean hunterIs;
+    private Boolean hunterIs;
 
     /**
      * 白痴是否存在
      */
-    private boolean idiotIs;
+    private Boolean idiotIs;
 
     /**
      * 小偷是否存在
      */
-    private boolean thiefIs;
+    private Boolean thiefIs;
 
     /**
      *  丘比特是否存在
      */
-    private boolean cupidIs;
+    private Boolean cupidIs;
 
     /**
      *  守卫是否存在
      */
-    private boolean guardIs;
+    private Boolean guardIs;
 
     /**
      *  长老是否存在
      */
-    private boolean presbyterIs;
+    private Boolean presbyterIs;
 
     /**
      *  小女孩是否存在
      */
-    private boolean girlIs;
+    private Boolean girlIs;
+
+    /**
+     * 警长
+     */
+    private Boolean policIs;
     /**
      *  狼人数量
      */
@@ -65,82 +70,93 @@ public class Werewolf {
      *  村民数量
      */
     private int villagernum;
-    /**
-     * 未参与者名单
-     */
-//    private List<String> unplayerlist=new ArrayList<>();
-//    private String[] unplayerlist;
 
-    public boolean isSeerIs() {
+    public String getGod() {
+        return god;
+    }
+
+    public void setGod(String god) {
+        this.god = god;
+    }
+
+    public Boolean getSeerIs() {
         return seerIs;
     }
 
-    public void setSeerIs(boolean seerIs) {
+    public void setSeerIs(Boolean seerIs) {
         this.seerIs = seerIs;
     }
 
-    public boolean isWitchIs() {
+    public Boolean getWitchIs() {
         return witchIs;
     }
 
-    public void setWitchIs(boolean witchIs) {
+    public void setWitchIs(Boolean witchIs) {
         this.witchIs = witchIs;
     }
 
-    public boolean isHunterIs() {
+    public Boolean getHunterIs() {
         return hunterIs;
     }
 
-    public void setHunterIs(boolean hunterIs) {
+    public void setHunterIs(Boolean hunterIs) {
         this.hunterIs = hunterIs;
     }
 
-    public boolean isIdiotIs() {
+    public Boolean getIdiotIs() {
         return idiotIs;
     }
 
-    public void setIdiotIs(boolean idiotIs) {
+    public void setIdiotIs(Boolean idiotIs) {
         this.idiotIs = idiotIs;
     }
 
-    public boolean isThiefIs() {
+    public Boolean getThiefIs() {
         return thiefIs;
     }
 
-    public void setThiefIs(boolean thiefIs) {
+    public void setThiefIs(Boolean thiefIs) {
         this.thiefIs = thiefIs;
     }
 
-    public boolean isCupidIs() {
+    public Boolean getCupidIs() {
         return cupidIs;
     }
 
-    public void setCupidIs(boolean cupidIs) {
+    public void setCupidIs(Boolean cupidIs) {
         this.cupidIs = cupidIs;
     }
 
-    public boolean isGuardIs() {
+    public Boolean getGuardIs() {
         return guardIs;
     }
 
-    public void setGuardIs(boolean guardIs) {
+    public void setGuardIs(Boolean guardIs) {
         this.guardIs = guardIs;
     }
 
-    public boolean isPresbyterIs() {
+    public Boolean getPresbyterIs() {
         return presbyterIs;
     }
 
-    public void setPresbyterIs(boolean presbyterIs) {
+    public void setPresbyterIs(Boolean presbyterIs) {
         this.presbyterIs = presbyterIs;
     }
 
-    public boolean isGirlIs() {
+    public Boolean getGirlIs() {
         return girlIs;
     }
 
-    public void setGirlIs(boolean girlIs) {
+    public void setGirlIs(Boolean girlIs) {
         this.girlIs = girlIs;
+    }
+
+    public Boolean getPolicIs() {
+        return policIs;
+    }
+
+    public void setPolicIs(Boolean policIs) {
+        this.policIs = policIs;
     }
 
     public int getWerewolfnum() {
@@ -158,29 +174,4 @@ public class Werewolf {
     public void setVillagernum(int villagernum) {
         this.villagernum = villagernum;
     }
-
-//    public List<String> getunPlayerlist() {
-//        return unplayerlist;
-//    }
-//
-//    public void setunPlayerlist(List<String> unplayerlist) {
-//        this.unplayerlist = unplayerlist;
-//    }
-
-//    public String[] getUnplayerlist() {
-//    return unplayerlist;
-//}
-//
-//    public void setUnplayerlist(String[] unplayerlist) {
-//        this.unplayerlist = unplayerlist;
-//    }
-
-    public String getGod() {
-        return god;
-    }
-
-    public void setGod(String god) {
-        this.god = god;
-    }
-
 }
