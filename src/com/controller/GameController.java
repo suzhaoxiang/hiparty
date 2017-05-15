@@ -50,7 +50,7 @@ public class GameController {
         for (int i = 0; i <warmGamelist.size(); i++) {
             String url=warmGamelist.get(i).getWarmGameUrl();
             url=url.replace("\\","/");
-            warmGamelist.get(i).setWarmGameUrl("http://"+localAddr+":8099/user/download?url=/ROOT/hiparty/WEB-INF/classes/loadfile/warm_game"+url);
+            warmGamelist.get(i).setWarmGameUrl("http://"+localAddr+":8080/user/download?url=C:/Users/Administrator/Desktop/hiparty/hipartyDB/loadfile/warm_game/"+url);
         }
         Chater chater = new Chater();
         chater.setOrder("warmgame");
@@ -61,6 +61,42 @@ public class GameController {
         chater.setMessage("SUCCEED");
 
         return chater;
+    }
+
+    @RequestMapping("/submitWarmGame")
+    @ResponseBody
+    public Chater submitWarmGame(Chater chater){
+        Chater chater1 = new Chater();
+        if (chater == null||chater.getUserId() == null||chater.getRoomId() == null){
+            chater1.setMessage("failed");
+            return chater1;
+        }
+        if (LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()) == null){
+            chater1.setMessage("failed");
+            return chater1;
+        }
+        String warmgameId=(String) chater.getObject();
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session=sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        WarmGame warmgame = (WarmGame) session.createQuery("from WarmGame where warmGameId=:WarmGameId")
+                .setParameter("WarmGameId", warmgameId)
+                .uniqueResult();
+        session.getTransaction().commit();
+
+        Map<String, Object> object2 = new HashMap<>();
+        object2.put("warmgame",warmgame.getWarmGame());
+        Chater chater2 = new Chater();
+        chater2.setObject(object2);
+        chater2.setMessage(CheckHost(chater.getRoomId(), chater.getUserId()));
+        chater2.setOrder("ensure_warmgame");
+        chater2.setRoomId(chater.getRoomId());
+        chater2.setUserId(chater.getUserId());
+        Room room = LabUtils.FindRoom(chater.getRoomId());
+        room.sendAll(chater2);
+
+        chater1.setMessage("SUCCEED");
+        return chater1;
     }
 
     @RequestMapping("/getlist")
@@ -127,17 +163,62 @@ public class GameController {
         Werewolf werewolf=new Gson().fromJson(obj,Werewolf.class);
         Room room=LabUtils.FindRoom(chater.getRoomId());
         List<RoomUser> playerlist = room.getUserlist();
-        for (int i = 0; i < ids.length; i++) {
-            playerlist.remove(LabUtils.FindRoomUser(chater.getRoomId(),ids[i]));
+        if (ids != null) {
+            for (int i = 0;i < ids.length; i++) {
+                playerlist.remove(LabUtils.FindRoomUser(chater.getRoomId(),ids[i]));
+            }
         }
+        Chater chater1 = new Chater();
         Chater chater2 = new Chater();
         chater2.setOrder("werewolf");
         chater2.setRoomId(chater.getRoomId());
-
+        Map<String,Boolean> playerboolean=new HashMap<>();
         //上帝
         if (werewolf.getGod() == null) {
             werewolf.setGod(chater.getUserId());
         }
+        int num=1;
+        //预言家
+        if (werewolf.getSeerIs()) {
+            num++;
+        }
+        //女巫
+        if (werewolf.getWitchIs()) {
+            num++;
+        }
+        //猎人
+        if (werewolf.getHunterIs()) {
+            num++;
+        }
+        //盗贼
+        if (werewolf.getThiefIs()) {
+            num++;
+        }
+        //白痴
+        if (werewolf.getIdiotIs()) {
+            num++;
+        }
+        //丘比特
+        if (werewolf.getCupidIs()) {
+            num++;
+        }
+        //守卫
+        if (werewolf.getGuardIs()) {
+            num++;
+        }
+        //小女孩
+        if (werewolf.getThiefIs()) {
+            num++;
+        }
+        //长老
+        if (werewolf.getPresbyterIs()) {
+            num++;
+        }
+         if(num+werewolf.getWerewolfnum()+werewolf.getVillagernum()==playerlist.size()){
+            chater1.setMessage("WRONG NUMBER");
+            return chater1;
+         }
+
         chater2.setMessage("God");
         playerlist.remove(LabUtils.FindRoomUser(chater.getRoomId(),werewolf.getGod()));
         room.sendSingle(chater2, LabUtils.FindRoomUser(chater.getRoomId(),werewolf.getGod()).getSession());
@@ -196,7 +277,6 @@ public class GameController {
             chater2.setMessage("村民");
             playerlist=createPlayer(chater2,playerlist);
         }
-        Chater chater1 = new Chater();
         chater1.setMessage("SUCCEED");
         chater1.setOrder("werewolf");
         return chater1;
@@ -240,5 +320,11 @@ public class GameController {
         map.put("wordList",sendList);
         chater2.setObject(map);
         return chater2;
+    }
+    private String CheckHost(String roomId,String userId){
+        if(LabUtils.FindRoom(roomId).getHostId().equals(userId)){
+            return "SUCCEED";
+        }
+        return "Not Host";
     }
 }

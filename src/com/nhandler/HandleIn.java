@@ -4,6 +4,7 @@ import com.beans.Chater;
 import com.beans.Json;
 import com.beans.Room;
 import com.beans.RoomUser;
+import com.google.gson.Gson;
 import com.nhandler.handlerImpl.HandlerInterface;
 import com.utils.LabUtils;
 import org.apache.mina.core.session.IoSession;
@@ -23,53 +24,57 @@ public class HandleIn implements HandlerInterface{
 
     @Override
     public Json handle(IoSession iossession, Chater chater) {
+        //先设定该房员属性
+        RoomUser roomuser = new RoomUser();
+        roomuser.setSession(iossession);
+        roomuser.setUserId(chater.getUserId());
+        //找到此房间，并将此房员加入列表
+        //设定返回的chater2
+        Chater chater2= new Chater();
+        //此时利用chater中的obj传送roomId
+        Map<String,Object> obj = new HashMap<>();
+        obj=(Map<String, Object>)chater.getObject();
+        String roomId=(String) obj.get("roomId");
+        Room room =LabUtils.FindRoom(roomId);
+        if(room==null){
+            chater2.setMessage("No Room");
+            chater2.setOrder("in");
 
-            //先设定该房员属性
-            RoomUser roomuser = new RoomUser();
-            roomuser.setSession(iossession);
-            roomuser.setUserId(chater.getUserId());
-            //找到此房间，并将此房员加入列表
-            //设定返回的chater2
-            Chater chater2= new Chater();
-            //此时利用chater中的obj传送roomId
-            Map<String,Object> obj = new HashMap<>();
-            obj=(Map<String, Object>)chater.getObject();
-            String roomId=(String) obj.get("roomId");
-            Room room =LabUtils.FindRoom(roomId);
-
-            Chater chater3=new Chater();
-            chater3.setMessage(chater.getUserId()+"已经进入房间");
-            chater3.setOrder("talk_in");
-            chater3.setUserId(chater.getUserId());
-            chater3.setRoomId(roomId);
-
-            if(room==null){
-                chater2.setMessage("No Room");
-            }
-            else{
-                if(LabUtils.FindRoomUser(roomId, chater.getUserId())!=null){
-                    chater2.setMessage("Already In");
-                }
+            chater2.setUserId(chater.getUserId());
+            String s = new Gson().toJson(chater2);
+            iossession.write(s);
+            return null;
+        }else{
+            if(LabUtils.FindRoomUser(roomId, chater.getUserId())!=null){
+                chater2.setMessage("Already In");
+                chater2.setOrder("in");
+                room.sendSingle(chater2,iossession);
+            }else{
                 //无错误
                 chater2.setMessage("SUCCEED");
                 room.getUserlist().add(roomuser);
                 room.setUserlist(room.getUserlist());
                 room.setRoomnum(room.getRoomnum()+1);
                 roomuser.setNickname("考拉"+room.getRoomnum());
+                Map<String,Object> object=new HashMap<>();
+                object.put("roomName", room.getRoomname());
+                chater2.setObject(object);
+                chater2.setOrder("in");
+                chater2.setRoomId(roomId);
+                chater2.setUserId(chater.getUserId());
+                room.sendSingle(chater2,iossession);
+                //System.out.println(room.getRoomnum());
 
-                System.out.println(room.getRoomnum());
-
+                Chater chater3=new Chater();
+                chater3.setMessage(chater.getUserId()+"已经进入房间");
+                chater3.setOrder("talk_in");
+                chater3.setUserId(chater.getUserId());
+                chater3.setRoomId(roomId);
+                int total = room.getUserlist().size();
+                chater3.setObject(total);
                 room.sendAll(chater3);
             }
-            Map<String,Object> object=new HashMap<>();
-            object.put("roomName", room.getRoomname());
-            chater2.setObject(object);
-            chater2.setOrder("in");
-            chater2.setRoomId(roomId);
-            chater2.setUserId(chater.getUserId());
-
-            room.sendSingle(chater2,iossession);
-            room.sendSingle(chater3,iossession);
+        }
 
         return null;
     }

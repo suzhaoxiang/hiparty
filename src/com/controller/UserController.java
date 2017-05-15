@@ -161,4 +161,31 @@ public class UserController {
 		return  chater;
 	}
 
+	@RequestMapping("/out")
+	@ResponseBody
+	public Chater out(Chater chater){
+		Chater chater1 = new Chater();
+		if (chater == null||chater.getUserId() == null||chater.getRoomId() == null){
+			chater1.setMessage("failed");
+			return chater1;
+		}
+		if (LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()) == null){
+			chater1.setMessage("failed");
+			return chater1;
+		}
+		Room room=new Room();
+		room=LabUtils.FindRoom(chater.getRoomId());
+		room.getUserlist().remove(LabUtils.FindRoomUser(chater.getRoomId(), chater.getUserId()));
+		room.setRoomnum(room.getRoomnum()-1);
+		Chater chater3=new Chater();
+		chater3.setMessage(chater.getUserId()+"已经退出房间");
+		chater3.setOrder("talk_out");
+		chater3.setUserId(chater.getUserId());
+		chater3.setRoomId(chater.getRoomId());
+		room.sendAll(chater3);
+		chater1.setMessage("SUCCEED");
+		return chater1;
+
+	}
+
 }

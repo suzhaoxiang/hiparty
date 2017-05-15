@@ -53,4 +53,17 @@ public class RoomController {
         chater2.setMessage("SUCCEED");
         return chater2;
     }
+
+    @RequestMapping("/getRoomNum")
+    @ResponseBody
+    public Chater getRoomNum(String roomId){
+        Chater chater = new Chater();
+        if (roomId!=null){
+            Room room=LabUtils.FindRoom(roomId);
+            int size = room.getUserlist().size();
+            chater.setObject(size);
+            chater.setMessage("SUCCEED");
+        }
+        return chater;
+    }
 }

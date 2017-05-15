@@ -42,7 +42,7 @@ public class ContextListener implements ServletContextListener {
     	acceptor.setReuseAddress(true);
     	acceptor.getSessionConfig().setReadBufferSize(2048);
     	acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
-    	acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+    	//acceptor.getFilterChain().addLast("logger", new LoggingFilter());
     	acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("utf-8"))));
     	acceptor.setHandler(new UserHandler());
     	
@@ -51,7 +51,7 @@ public class ContextListener implements ServletContextListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		TestLab();
+		//TestLab();
     }
 
 	private void TestLab() {
@@ -59,7 +59,6 @@ public class ContextListener implements ServletContextListener {
 		Room room=new Room();
 		room.setRoomId("111");
 		room.setRoomname("test");
-		room.setRoomnum(1);
 		room.setHostId("0");
 		List<RoomUser> list=new ArrayList<>();
 		for (int i = 0; i <20 ; i++) {
@@ -70,6 +69,7 @@ public class ContextListener implements ServletContextListener {
 			list.add(roomuser);
 		}
 		room.setUserlist(list);
+		room.setRoomnum(list.size());
 		lab.setList(room);
 	}
 

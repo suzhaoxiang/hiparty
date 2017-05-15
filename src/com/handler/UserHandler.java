@@ -45,15 +45,14 @@ public class UserHandler implements IoHandler {
 		HandlerInterface myHandler = (HandlerInterface) beanFactory.getObject(chater.getOrder());
 		if (myHandler!=null){
 			myHandler.handle(iossession,chater);
-		}
-		else {
+		}else {
 			switch (chater.getOrder()) {
-				case "create":
-					handleCreate(iossession, chater);
-					break;
-				case "in":
-					handleIn(iossession, chater);
-					break;
+//				case "create":
+//					handleCreate(iossession, chater);
+//					break;
+//				case "in":
+//					handleIn(iossession, chater);
+//					break;
 				case "out":
 					handleOut(iossession, chater);
 					break;
@@ -323,40 +322,41 @@ public class UserHandler implements IoHandler {
 		obj=(Map<String, Object>)chater.getObject();
 		String roomId=(String) obj.get("roomId");
 		Room room =LabUtils.FindRoom(roomId);
-
-		Chater chater3=new Chater();
-		chater3.setMessage(chater.getUserId()+"已经进入房间");
-		chater3.setOrder("talk_in");
-		chater3.setUserId(chater.getUserId());
-		chater3.setRoomId(roomId);
-
 		if(room==null){
 			chater2.setMessage("No Room");
-		}
-		else{
+			chater2.setOrder("in");
+			chater2.setRoomId(roomId);
+			chater2.setUserId(chater.getUserId());
+			return;
+		}else{
 			if(LabUtils.FindRoomUser(roomId, chater.getUserId())!=null){
 				chater2.setMessage("Already In");
+			}else{
+				//无错误
+				chater2.setMessage("SUCCEED");
+				room.getUserlist().add(roomuser);
+				room.setUserlist(room.getUserlist());
+				room.setRoomnum(room.getRoomnum()+1);
+				roomuser.setNickname("考拉"+room.getRoomnum());
+				Map<String,Object> object=new HashMap<>();
+				object.put("roomName", room.getRoomname());
+				chater2.setObject(object);
+				chater2.setOrder("in");
+				chater2.setRoomId(roomId);
+				chater2.setUserId(chater.getUserId());
+				SendSingle(chater2,iossession);
+				//System.out.println(room.getRoomnum());
+
+				Chater chater3=new Chater();
+				chater3.setMessage(chater.getUserId()+"已经进入房间");
+				chater3.setOrder("talk_in");
+				chater3.setUserId(chater.getUserId());
+				chater3.setRoomId(roomId);
+				room.sendAll(chater3);
 			}
-			//无错误
-			chater2.setMessage("SUCCEED");
-			room.getUserlist().add(roomuser);
-			room.setUserlist(room.getUserlist());
-			room.setRoomnum(room.getRoomnum()+1);
-			roomuser.setNickname("考拉"+room.getRoomnum());
-
-			System.out.println(room.getRoomnum());
-
-			SendAll(chater3,roomId);
 		}
-		Map<String,Object> object=new HashMap<>();
-		object.put("roomName", room.getRoomname());
-		chater2.setObject(object);
-		chater2.setOrder("in");
-		chater2.setRoomId(roomId);
-		chater2.setUserId(chater.getUserId());
 
-		SendSingle(chater2,iossession);
-		SendSingle(chater3,iossession);
+		//SendSingle(chater3,iossession);
 	}
 
 	private void handleCreate(IoSession iossession, Chater chater) {
