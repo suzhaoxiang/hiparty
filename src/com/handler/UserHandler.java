@@ -132,7 +132,14 @@ public class UserHandler implements IoHandler {
 
 	private void handleTalk(IoSession iossession, Chater chater) {
 		Map<String,Object> map= new HashMap<>();
-		map.put("nickname",LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()).getNickname());
+		SessionFactory sessionFactory=HibernateUtil.getSessionFactory();
+		Session session=sessionFactory.getCurrentSession();
+		session.beginTransaction();
+		User user= (User) session.createQuery("FROM User where userId=:userId")
+				.setParameter("userId",chater.getUserId())
+				.uniqueResult();
+		session.getTransaction().commit();
+		map.put("nickname",user.getUsername());
 		chater.setObject(map);
 		SendAll(chater, chater.getRoomId());
 	}
@@ -149,14 +156,15 @@ public class UserHandler implements IoHandler {
 		Punishment punishment = (Punishment) session.createQuery("from Punishment where punishmentId=:punishmentId")
 				.setParameter("punishmentId", punishmentId)
 				.uniqueResult();
+		User user = (User) session.createQuery("from User where userId=:userId")
+				.setParameter("userId", chater.getUserId())
+				.uniqueResult();
 		session.getTransaction().commit();
-		System.out.println(punishment.getPunishment());
+//		System.out.println(punishment.getPunishment());
 		Map<String, Object> object2 = new HashMap<>();
-		if(LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId())==null){
-			System.out.println(123);
-		}
-		String nickname = LabUtils.FindRoomUser(chater.getRoomId(),chater.getUserId()).getNickname();
-		System.out.println(nickname);
+
+		String nickname = user.getUsername();
+//		System.out.println(nickname);
 		if(nickname!=null&&!nickname.equals("")){
 			object2.put("punishment", nickname+":"+punishment.getPunishment());
 		}
@@ -284,8 +292,7 @@ public class UserHandler implements IoHandler {
 		else if(now.getTime()-room.getRoomutils().getIntroducestart().getTime()>30000){
 			SendAll(chater2, chater.getRoomId());
 		}
-//		//chater新建？
-//		SendSingle(chater2, iossession);
+
 	}
 
 	private void handleIntroduce(IoSession iossession, Chater chater) {
@@ -444,14 +451,26 @@ public class UserHandler implements IoHandler {
 
 	@Override
 	public void sessionIdle(IoSession arg0, IdleStatus arg1) throws Exception {
-		// TODO Auto-generated method stub
+
+		Chater chater=new Chater();
+		for (int i = 0; i < lab.getList().size(); i++) {
+			for (int j = 0; j < lab.getList().get(i).getUserlist().size(); j++) {
+				if(lab.getList().get(i).getUserlist().get(j).getSession()==arg0){
+					chater.setRoomId(lab.getList().get(i).getRoomId());
+					chater.setUserId(lab.getList().get(i).getUserlist().get(j).getUserId());
+				}
+			}
+		}
+		handleOut(arg0,chater);
 
 	}
 
 	@Override
 	public void sessionOpened(IoSession arg0) throws Exception {
-		// TODO Auto-generated method stub
-
+		Chater chater=new Chater();
+		chater.setMessage("SUCCEED");
+		chater.setOrder("sessionOpen");
+		arg0.write(chater);
 	}
 
 
